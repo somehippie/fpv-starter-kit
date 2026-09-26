@@ -10,11 +10,24 @@ Factory firmware ships without a usable configurable "USB Joystick" setup, so sw
 
 **Confirmed factory build** (read off the radio's own SD card, `\FIRMWARE\`):
 
-> `POCKET-V2.9.0-PROD-2023.7.27-C.bin` — EdgeTX 2.9.0, built 2023-07-27
+> `POCKET-V2.9.0-PROD-2023.7.27-C.bin` — the filename says 2.9.0, but the binary actually contains **edgetx-pocket-2.10.0-RM** (a RadioMaster-branded 2.10.0 build). Corrected 2026-09-26 — don't trust the filename over the binary.
 
-> ⚠️ **Unverified claim — check before relying on it.** An earlier draft said EdgeTX 2.11+ *removed* the configurable USB Joystick page, making 2.10.6 the last version to have it. The official EdgeTX manual contradicts this: it publishes a [USB Joystick page for 2.11](https://manual.edgetx.org/color-radios/model-settings/model-setup/usb-joystick) and a [v2.11 "Configure Advanced Joystick" how-to](https://manual.edgetx.org/v2.11/edgetx-how-to/configure-advanced-joystick-with-edgetx). If the feature still exists in 2.11, **the downgrade to 2.10.6 was unnecessary.** Verify before repeating this path.
+> ✅ **Resolved — the earlier "unverified" flag was correct to raise, and the claim checks out.** [EdgeTX issue #6434](https://github.com/EdgeTX/edgetx/issues/6434) confirms Advanced USB Joystick (`USBJ_EX`) was **intentionally disabled starting in 2.11.x** for STM32F4 targets with only 512KB flash — the feature doesn't fit alongside everything else once compiled in. Per maintainer comments in that issue, the **RadioMaster Pocket is explicitly named** as one of the affected radios, alongside the TX12 and TX12 MK2. The generic manual pages for "USB Joystick" and "Configure Advanced Joystick" still exist because larger-flash radios keep the feature — they just don't apply to this one. So the 2.10.6 downgrade was not a misdiagnosis: it was the correct call *if* Advanced per-channel mapping is the priority.
 
-Version flashed here regardless: **EdgeTX 2.10.6 "Centurion"** (released 2025-01-28).
+Originally flashed here: **EdgeTX 2.10.6 "Centurion"** (released 2025-01-28), specifically to get Advanced mode.
+
+## Firmware update: 2.10.6 → 2.12.4 (2026-09-26)
+
+Updated anyway, priority shifted to running current EdgeTX over keeping Advanced joystick mode:
+
+- Flashed **EdgeTX 2.12.4 "Queen Anne's Revenge"** (latest stable, released 2026-09-02) via the same SD-card/bootloader method below.
+- Firmware file: `pocket-def35ad.bin` from `edgetx-firmware-v2.12.4.zip`; SHA256 verified against GitHub's published value.
+- SD card contents updated in step: **2.8 → 2.12.3** (bw128x64 pack + English sounds 2.12.3) — see [SD card contents version](#sd-card-contents-version) below for why this matters separately from firmware.
+- Full SD backup taken first: `Downloads\pocket-sd-backup-20260926-101904` (1,097 files, verified) — same discipline as the original flash.
+- A pre-existing model, `model04.yml` (unnamed, the original USB-Joystick test model with Advanced mode and trim offsets Ail −4 / Ele +2 / Rud +4), was **not** touched and is kept for later rather than deleted.
+- A new stock model named `000` was created and selected instead of reusing `model04`.
+- Post-flash, Windows sees a **Classic-mode joystick (6 axes, 24 buttons)** — consistent with the stock `000` model being active and not yet configured for Advanced mode. Whether Advanced mode is still selectable at all on 2.12.4 for this radio (the flash-constraint issue above would say no) is **not yet confirmed** — model `000`'s Setup → USB Joystick page needs to be checked directly.
+- **Not yet verified:** that the radio actually reports `2.12.4` cleanly, and that model `000` saved correctly. Check by connecting as USB Storage and reading `RADIO/radio.yml` (firmware semver) and the `MODELS/` folder contents.
 
 ## The DFU vs. Mass Storage trap
 
@@ -83,7 +96,7 @@ When `Service = USBSTOR` and the SD card appears as a drive letter, the mass-sto
 
 ## SD card contents version
 
-Separate from firmware. Check `edgetx.sdcard.version` in the card's root — it was **2.8** here against 2.10.6 firmware. A mismatch produces a warning on boot plus missing sounds and themes. SD contents are a separate download from the [edgetx-sdcard releases](https://github.com/EdgeTX/edgetx-sdcard/releases).
+Separate from firmware. Check `edgetx.sdcard.version` in the card's root — it was **2.8** against the original 2.10.6 firmware (mismatch produces a warning on boot plus missing sounds and themes), and was updated to **2.12.3** alongside the 2.12.4 firmware update on 2026-09-26. SD contents are a separate download from the [edgetx-sdcard releases](https://github.com/EdgeTX/edgetx-sdcard/releases) — always match it to the firmware version, they don't auto-sync.
 
 ## Post-flash configuration
 
@@ -142,6 +155,8 @@ Reading capability *and* live values separately is what distinguishes "not confi
 2. **Zadig is not a general fix.** It rebinds drivers, and pointing it at a non-DFU device actively breaks a working path. Never apply it to a HID game controller.
 3. **Measure before concluding.** Hours went into diagnoses built on a test where the sticks weren't being moved, and another that assumed no SD card was inserted. Confirm the input to a test before trusting its output.
 
-## Open item
+## Open items
 
-**Switch → button mapping is not working yet** (as of 2026-09-22). Post-flash the radio declares `1 button / 32 max`, but no switch produces a press event, and the descriptor is byte-identical before and after the config attempt — suggesting Hop 1 (the mix) or Mode = Advanced didn't commit. Next check: the radio's **Channel Monitor** (`MDL` → Channels). If the channel's bar doesn't move when the switch is flipped, the mix was never saved.
+1. **Switch → button mapping is still not working** (last confirmed 2026-09-22, not yet re-tested on 2.12.4). Post-flash the radio declared `1 button / 32 max`, but no switch produced a press event, and the descriptor was byte-identical before and after the config attempt — suggesting Hop 1 (the mix) or Mode = Advanced didn't commit. Next check: the radio's **Channel Monitor** (`MDL` → Channels). If the channel's bar doesn't move when the switch is flipped, the mix was never saved. This needs re-verification now that a new stock model (`000`) is active on 2.12.4 rather than the original test model (`model04.yml`).
+2. **Whether Advanced USB Joystick mode is available at all on 2.12.4 for this radio** — unconfirmed. Given the flash-constraint issue above, model `000`'s Setup → USB Joystick page needs to be checked directly; if Advanced isn't offered, the switch-mapping work may need to happen on `model04.yml` (which already has it) instead of a fresh stock model.
+3. **Firmware version and model save not yet verified on-device** — confirm by connecting as USB Storage and reading `RADIO/radio.yml` (should report 2.12.4) and the `MODELS/` folder (should contain `000`).

@@ -20,7 +20,7 @@ Analog FPV (SteadyView-class video) is the cheapest, most beginner-friendly way 
 
 | Component | Choice |
 |---|---|
-| Controller | RadioMaster Pocket 2, EdgeTX 2.10.6 "Centurion" |
+| Controller | RadioMaster Pocket 2, EdgeTX 2.12.4 "Queen Anne's Revenge" |
 | Sims | Uncrashed (Steam), Liftoff: Micro Drones (Steam) |
 | Video system | Analog (SteadyView-class) |
 | Goggles | Skyzone SKY04X Pro |
@@ -42,8 +42,8 @@ Details in [section 2](docs/02-sim-setup.md#uncrashed-throttle-curve-sim-side-on
 
 Sim-trained on Uncrashed, hardware purchased and in hand or en route, adding Liftoff: Micro Drones for whoop-specific practice before first real flights.
 
-**Firmware:** flashed to EdgeTX 2.10.6 via the SD-card method on 2026-09-22, after a detour through a mistaken Zadig/WinUSB driver binding. Sticks confirmed working — four axes at full range, verified directly from Windows.
+**Firmware:** flashed to EdgeTX 2.10.6 via the SD-card method on 2026-09-22 (after a detour through a mistaken Zadig/WinUSB driver binding), then updated to **EdgeTX 2.12.4 "Queen Anne's Revenge"** on 2026-09-26, same SD-card method, SD card contents updated to 2.12.3 alongside it. Sticks confirmed working on 2.10.6 — four axes at full range, verified directly from Windows; not yet re-verified on 2.12.4.
 
-**Open item:** switch → button mapping is not yet functional. The radio declares a button slot but no switch drives it; next diagnostic is the radio's Channel Monitor. See [Controller Choice](docs/01-controller-choice.md#open-item).
+**Resolved:** whether EdgeTX 2.11+ dropped the configurable Advanced USB Joystick page — confirmed true for this radio. [EdgeTX issue #6434](https://github.com/EdgeTX/edgetx/issues/6434) shows it was intentionally disabled starting in 2.11.x on 512KB-flash STM32F4 targets, and the RadioMaster Pocket is explicitly named as affected. The 2.10.6 downgrade was the right call for Advanced mode — the update to 2.12.4 was a deliberate trade-off (newer EdgeTX over per-channel joystick config), not a correction of a mistake.
 
-**Also unresolved:** whether EdgeTX 2.11 really dropped the configurable USB Joystick page. The official 2.11 manual suggests it did not, which would mean the 2.10.6 downgrade was unnecessary. Flagged in section 1.
+**Open items:** (1) switch → button mapping still not functional as of last test, next diagnostic is the radio's Channel Monitor; (2) whether Advanced USB Joystick mode is even selectable on 2.12.4 for this radio is unconfirmed given the flash-constraint issue; (3) the 2.12.4 flash and new `000` model haven't been verified on-device yet (`RADIO/radio.yml`, `MODELS/` folder). See [Controller Choice](docs/01-controller-choice.md#open-items).
