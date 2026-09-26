@@ -4,34 +4,65 @@
 
 A compact, pocket-sized ELRS 2.4GHz transmitter — good for both sim use (via USB) and real flying (built-in ELRS module), which is what makes it a fit for both halves of this build.
 
-## The firmware problem
+## Firmware
 
-Out of the box, switches aren't presented to a PC sim as buttons. EdgeTX 2.10's **Advanced** USB Joystick mode added per-channel axis/button assignment, but it no longer exists for this radio from 2.11 on (see below). On current firmware, switches reach the PC through **Classic** mode's fixed layout instead.
+### Factory build
 
-**Confirmed factory build** (read off the radio's own SD card, `\FIRMWARE\`):
+Read off the radio's own SD card, `\FIRMWARE\`: `POCKET-V2.9.0-PROD-2023.7.27-C.bin`. The filename says 2.9.0, but the binary contains **edgetx-pocket-2.10.0-RM**, a RadioMaster-branded 2.10.0 build. Trust the version string inside the binary, not the filename.
 
-> `POCKET-V2.9.0-PROD-2023.7.27-C.bin` — the filename says 2.9.0, but the binary actually contains **edgetx-pocket-2.10.0-RM** (a RadioMaster-branded 2.10.0 build). Corrected 2026-09-26 — don't trust the filename over the binary.
+### Why only Classic USB Joystick mode (2.11 and later)
 
-> ✅ **Resolved — the earlier "unverified" flag was correct to raise, and the claim checks out.** [EdgeTX issue #6434](https://github.com/EdgeTX/edgetx/issues/6434) confirms Advanced USB Joystick (`USBJ_EX`) was **intentionally disabled starting in 2.11.x** for STM32F4 targets with only 512KB flash — the feature doesn't fit alongside everything else once compiled in. The maintainer's comment names the TX12 MK2 as an example; users in the same thread name the **RadioMaster Pocket**, and one reports that enabling `USBJ_EX` on the `pocket` build overflows flash by 24 bytes. The definitive proof is the build file itself: at `v2.12.4`, [`radio/src/targets/taranis/CMakeLists.txt`](https://github.com/EdgeTX/edgetx/blob/v2.12.4/radio/src/targets/taranis/CMakeLists.txt) sets the Pocket to `CPU_TYPE_FULL STM32F407xE` (512KB), and that CPU branch sets `USBJ_EX OFF`. The USB Joystick setup page is compiled out entirely, for every model. The generic manual pages for "USB Joystick" and "Configure Advanced Joystick" still exist because larger-flash radios keep the feature — they just don't apply to this one. So the 2.10.6 downgrade was not a misdiagnosis: it was the correct call *if* Advanced per-channel mapping is the priority.
+EdgeTX 2.10's **Advanced** USB Joystick mode adds per-channel axis/button assignment. From 2.11 on, it is **compiled out** of the Pocket's firmware:
 
-Originally flashed here: **EdgeTX 2.10.6 "Centurion"** (released 2025-01-28), specifically to get Advanced mode.
+- [EdgeTX issue #6434](https://github.com/EdgeTX/edgetx/issues/6434): Advanced USB Joystick (`USBJ_EX`) was intentionally disabled for STM32F4 targets with only 512KB flash, because it no longer fits. The maintainer's comment names the TX12 MK2 as an example; users in the thread name the Pocket, and one reports that enabling `USBJ_EX` on the `pocket` build overflows flash by 24 bytes.
+- **Source-verified:** at `v2.12.4`, [`radio/src/targets/taranis/CMakeLists.txt`](https://github.com/EdgeTX/edgetx/blob/v2.12.4/radio/src/targets/taranis/CMakeLists.txt) sets the Pocket to `CPU_TYPE_FULL STM32F407xE` (512KB), and that CPU branch sets `USBJ_EX OFF`. There is no USB Joystick page in `MDL` → Setup, for any model.
 
-## Firmware update: 2.10.6 → 2.12.4 (2026-09-26)
+The generic manual pages for [USB Joystick](https://manual.edgetx.org/color-radios/model-settings/model-setup/usb-joystick) and [Configure Advanced Joystick](https://manual.edgetx.org/v2.11/edgetx-how-to/configure-advanced-joystick-with-edgetx) still exist because larger-flash radios keep the feature. They don't apply to this one.
 
-Updated anyway, priority shifted to running current EdgeTX over keeping Advanced joystick mode:
+On Classic mode, switches still reach the PC as buttons, just through a fixed channel layout. See [Post-flash configuration](#post-flash-configuration).
 
-- Flashed **EdgeTX 2.12.4 "Queen Anne's Revenge"** (latest stable, released 2026-09-02) via the same SD-card/bootloader method below.
-- Firmware file: `pocket-def35ad.bin` from `edgetx-firmware-v2.12.4.zip`; SHA256 verified against GitHub's published value.
-- SD card contents updated in step: **2.8 → 2.12.3** (bw128x64 pack + English sounds 2.12.3) — see [SD card contents version](#sd-card-contents-version) below for why this matters separately from firmware.
-- Full SD backup taken first: `Downloads\pocket-sd-backup-20260926-101904` (1,097 files, verified) — same discipline as the original flash.
-- A pre-existing model, `model04.yml` (unnamed, the original USB-Joystick test model with Advanced mode and trim offsets Ail −4 / Ele +2 / Rud +4), was **not** touched and is kept for later rather than deleted.
-- A new stock model named `000` was created and selected instead of reusing `model04`.
-- Post-flash, Windows sees a **Classic-mode joystick (6 axes, 24 buttons)**. On 2.12.4 that is the only mode this radio has; `model04.yml`'s Advanced joystick settings are inert too, since the feature is missing from the firmware rather than from the model.
-- **Not yet verified:** that the radio actually reports `2.12.4` cleanly, and that model `000` saved correctly. Check by connecting as USB Storage and reading `RADIO/radio.yml` (firmware semver) and the `MODELS/` folder contents.
+> Issue-thread comments are not the same as a confirmed fact. The first write-up here treated "users mention the Pocket" as "maintainer confirmed"; the build file is what settles it.
+
+### Firmware history
+
+| Date | Version | Why |
+|---|---|---|
+| Factory | 2.10.0-RM (RadioMaster build) | as shipped |
+| 2026-09-22 | **2.10.6 "Centurion"** (released 2025-01-28) | last version with Advanced USB Joystick on this radio |
+| 2026-09-26 | **2.12.4 "Queen Anne's Revenge"** (released 2026-09-02) | current stable; Advanced joystick no longer a priority |
+
+Details of the 2.12.4 update:
+
+- Flashed via the [SD-card method](#working-flash-procedure-sd-card--mass-storage-method): `pocket-def35ad.bin` from `edgetx-firmware-v2.12.4.zip`, SHA256 verified against GitHub's published value.
+- SD card contents updated in the same session: **2.8 → 2.12.3** (bw128x64 pack + English sounds 2.12.3).
+- Full SD backup taken first: `Downloads\pocket-sd-backup-20260926-101904` (1,097 files, verified).
+- The original USB Joystick test model, `model04.yml` (unnamed; Advanced mode, trim offsets Ail −4 / Ele +2 / Rud +4), was kept rather than deleted. Its Advanced settings are inert on 2.12.4.
+- A new stock model named `000` was created and selected.
+- Post-flash, Windows sees a **Classic-mode joystick (6 axes, 24 buttons)**.
+
+## Working flash procedure (SD-card / mass-storage method)
+
+1. **Back up the SD card first** — plain recursive copy of the whole card.
+2. Download the EdgeTX `.bin` for the `pocket` target and verify its SHA256 against the published source.
+   - Current build: `edgetx-firmware-v2.12.4.zip` on the [EdgeTX releases page](https://github.com/EdgeTX/edgetx/releases/tag/v2.12.4) contains `pocket-def35ad.bin`. The earlier 2.10.6 flash used `pocket-14adf04.bin` from `edgetx-firmware-v2.10.6.zip`; go back to that only if you need Advanced USB Joystick more than current firmware.
+   - **There is exactly one `pocket` target** per release. No separate "Pocket 2" build exists; the Pocket 2 uses the `pocket` target.
+   - Update the SD card contents to the matching version in the same session (see [SD card contents version](#sd-card-contents-version)).
+3. Enter **bootloader mode**: hold both horizontal trims inward + power on. The radio shows "Write Firmware / Exit."
+4. Connect via USB — the radio should mount as a plain USB drive.
+5. Copy the `.bin` file into the `FIRMWARE` folder on that drive (create it if needed, e.g. `F:\FIRMWARE\<file>.bin`).
+6. Unplug the USB cable — the radio needs to write from its own SD card, not while tethered.
+7. On the bootloader screen, select **Write Firmware**, pick the `.bin` file, confirm.
+8. Wait a couple of minutes for the flash, then the radio reboots into the new EdgeTX automatically.
+
+> The bootloader validates the image before writing, which makes this materially safer than DFU flashing. There are [reports of radios bricked by DFU flashes via Buddy](https://github.com/EdgeTX/edgetx/issues/5112).
+
+## SD card contents version
+
+Separate from firmware. Check `edgetx.sdcard.version` in the card's root — it was **2.8** against the original 2.10.6 firmware (mismatch produces a warning on boot plus missing sounds and themes), and was updated to **2.12.3** alongside the 2.12.4 firmware update on 2026-09-26. SD contents are a separate download from the [edgetx-sdcard releases](https://github.com/EdgeTX/edgetx-sdcard/releases) — always match it to the firmware version, they don't auto-sync.
 
 ## The DFU vs. Mass Storage trap
 
-The costliest mistake in this build: STM32-based radios like the Pocket 2 can present as **two different, non-interchangeable** USB devices depending on how bootloader mode is entered.
+If the flash procedure above fails to connect, check this first. It was the costliest mistake in this build: STM32-based radios like the Pocket 2 can present as **two different, non-interchangeable** USB devices depending on how bootloader mode is entered.
 
 | Mode | USB ID | What it looks like to your PC | Flash method |
 |---|---|---|---|
@@ -78,26 +109,6 @@ Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match 'VID_0483' } |
 ```
 
 When `Service = USBSTOR` and the SD card appears as a drive letter, the mass-storage path is healthy again.
-
-## Working flash procedure (SD-card / mass-storage method)
-
-1. **Back up the SD card first** — plain recursive copy of the whole card.
-2. Download the EdgeTX `.bin` for the `pocket` target and verify its SHA256 against the published source.
-   - Current build: `edgetx-firmware-v2.12.4.zip` on the [EdgeTX releases page](https://github.com/EdgeTX/edgetx/releases/tag/v2.12.4) contains `pocket-def35ad.bin`. The earlier 2.10.6 flash used `pocket-14adf04.bin` from `edgetx-firmware-v2.10.6.zip`; go back to that only if you need Advanced USB Joystick more than current firmware.
-   - **There is exactly one `pocket` target** per release. No separate "Pocket 2" build exists; the Pocket 2 uses the `pocket` target.
-   - Update the SD card contents to the matching version in the same session (see [SD card contents version](#sd-card-contents-version)).
-3. Enter **bootloader mode**: hold both horizontal trims inward + power on. The radio shows "Write Firmware / Exit."
-4. Connect via USB — the radio should mount as a plain USB drive.
-5. Copy the `.bin` file into the `FIRMWARE` folder on that drive (create it if needed, e.g. `F:\FIRMWARE\<file>.bin`).
-6. Unplug the USB cable — the radio needs to write from its own SD card, not while tethered.
-7. On the bootloader screen, select **Write Firmware**, pick the `.bin` file, confirm.
-8. Wait a couple of minutes for the flash, then the radio reboots into the new EdgeTX automatically.
-
-> The bootloader validates the image before writing, which makes this materially safer than DFU flashing. There are [reports of radios bricked by DFU flashes via Buddy](https://github.com/EdgeTX/edgetx/issues/5112).
-
-## SD card contents version
-
-Separate from firmware. Check `edgetx.sdcard.version` in the card's root — it was **2.8** against the original 2.10.6 firmware (mismatch produces a warning on boot plus missing sounds and themes), and was updated to **2.12.3** alongside the 2.12.4 firmware update on 2026-09-26. SD contents are a separate download from the [edgetx-sdcard releases](https://github.com/EdgeTX/edgetx-sdcard/releases) — always match it to the firmware version, they don't auto-sync.
 
 ## Post-flash configuration
 
@@ -152,3 +163,4 @@ Reading capability *and* live values separately is what distinguishes "not confi
 
 1. **Switch → button mapping not yet done on 2.12.4.** The 2026-09-22 attempt used Advanced mode, which no longer exists here. Redo it the Classic way on model `000`: mix a 2-position switch onto CH9, check the radio's **Channel Monitor** (`MDL` → Channels) shows CH9 swinging between −100 and +100, then confirm button 1 presses in Windows.
 2. **Firmware version and model save not yet verified on-device.** Confirm by connecting as USB Storage and reading `RADIO/radio.yml` (should report `semver: 2.12.4`) and the `MODELS/` folder (should contain the `000` model).
+3. **Sticks not yet re-verified on 2.12.4.** They were confirmed on 2.10.6 (four axes at full range, read from Windows with `joyGetPosEx`). Repeat that check while actually moving the sticks.

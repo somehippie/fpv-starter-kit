@@ -42,8 +42,10 @@ Details in [section 2](docs/02-sim-setup.md#uncrashed-throttle-curve-sim-side-on
 
 Sim-trained on Uncrashed, hardware purchased and in hand or en route, adding Liftoff: Micro Drones for whoop-specific practice before first real flights.
 
-**Firmware:** flashed to EdgeTX 2.10.6 via the SD-card method on 2026-09-22 (after a detour through a mistaken Zadig/WinUSB driver binding), then updated to **EdgeTX 2.12.4 "Queen Anne's Revenge"** on 2026-09-26, same SD-card method, SD card contents updated to 2.12.3 alongside it. Sticks confirmed working on 2.10.6 — four axes at full range, verified directly from Windows; not yet re-verified on 2.12.4.
+**Firmware:** EdgeTX **2.12.4 "Queen Anne's Revenge"** since 2026-09-26, SD card contents 2.12.3. Previously 2.10.6 (2026-09-22), the last version with Advanced USB Joystick on this radio; from 2.11 on the Pocket has Classic mode only, [verified in the EdgeTX build source](docs/01-controller-choice.md#why-only-classic-usb-joystick-mode-211-and-later). Full history in [Controller Choice](docs/01-controller-choice.md#firmware-history).
 
-**Resolved:** whether EdgeTX 2.11+ dropped the configurable Advanced USB Joystick page — confirmed true for this radio. [EdgeTX issue #6434](https://github.com/EdgeTX/edgetx/issues/6434) shows it was intentionally disabled starting in 2.11.x on 512KB-flash STM32F4 targets, and the 2.12.4 build file confirms the Pocket (STM32F407xE) is one of them. The 2.10.6 downgrade was the right call for Advanced mode — the update to 2.12.4 was a deliberate trade-off (newer EdgeTX over per-channel joystick config), not a correction of a mistake.
+**Open items** (details in [Controller Choice](docs/01-controller-choice.md#open-items)):
 
-**Open items:** (1) switch → button mapping needs redoing the Classic-mode way: a switch mixed onto CH9+ shows up as button 1+, no joystick page needed; (2) the 2.12.4 flash and new `000` model haven't been verified on-device yet (`RADIO/radio.yml`, `MODELS/` folder). See [Controller Choice](docs/01-controller-choice.md#open-items).
+1. Switch → button mapping, the Classic-mode way: a switch mixed onto CH9+ shows up as button 1+.
+2. On-device check that the radio reports 2.12.4 and model `000` saved.
+3. Sticks were verified on 2.10.6 (four axes at full range, read from Windows); re-check on 2.12.4.
