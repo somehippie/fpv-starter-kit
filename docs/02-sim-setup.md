@@ -4,7 +4,7 @@
 
 General-purpose FPV racing sim, used first to learn basic stick control and arm/disarm flow once the Pocket 2 was flashed and configured (see [Controller Choice](01-controller-choice.md)).
 
-**Binding:** Uncrashed's controller binding screen auto-detects movement per control — wiggle each stick/switch when prompted and it registers correctly once EdgeTX's Advanced USB Joystick mode and channel mapping are set up right.
+**Binding:** Uncrashed's controller binding screen auto-detects movement per control — wiggle each stick/switch when prompted and it registers correctly once the EdgeTX channel mapping is set up right (Classic mode on 2.12.4: CH1–8 axes, CH9+ buttons; see [Controller Choice](01-controller-choice.md#post-flash-configuration)).
 
 **Calibration reality check:** full calibration (endpoints/centering) plus getting comfortable took about 4 hours of practice before the first complete, crash-free lap.
 
@@ -102,7 +102,7 @@ Uncrashed is UE4.27 with roughly 15 GB of content across `pakchunk0`–`pakchunk
 - **Focus:** the micro/whoop class specifically — turns ordinary indoor spaces into flyable tracks, which better mirrors realistic first-flight conditions for a Meteor75-class whoop than a general racing sim.
 - **Features:** single-player + online multiplayer, a dedicated drone and track editor, 18 Steam achievements, Family Sharing supported.
 - **Requirements:** broadband internet required; integrated Intel HD graphics not recommended; ~15 GB storage.
-- **Controller:** recommends an RC transmitter; no specific brand callouts, but the same EdgeTX Advanced USB Joystick config used for Uncrashed should carry over — just rebind axes in Liftoff's own controller settings screen.
+- **Controller:** recommends an RC transmitter; no specific brand callouts, but the same EdgeTX USB Joystick config used for Uncrashed should carry over — just rebind axes in Liftoff's own controller settings screen.
 
 ## Why run both
 
@@ -111,7 +111,7 @@ Uncrashed built the general stick-coordination and crash-recovery reflexes; Lift
 ## Practice plan
 
 1. Install Liftoff on the same PC.
-2. Reuse the existing EdgeTX Advanced USB Joystick config from Uncrashed — rebind in Liftoff's controller settings.
+2. Reuse the existing EdgeTX USB Joystick config from Uncrashed — rebind in Liftoff's controller settings.
 3. Use the drone/track editor to build a track approximating your expected first real-world flying space (room size, obstacles).
 4. Focus reps on whoop-specific skills: tight turns, prop-wash recovery, low-speed hover — more relevant to a 1S brushless whoop than open-track racing practice.
 
