@@ -4,6 +4,23 @@
 
 A compact, pocket-sized ELRS 2.4GHz transmitter — good for both sim use (via USB) and real flying (built-in ELRS module), which is what makes it a fit for both halves of this build.
 
+### Alternative considered: Jumper Bumblebee
+
+Revisited after the Classic-mode limitation above became clear. Note up front: "analog vs. digital" describes the video system (goggles/VTX), not the radio — both the Pocket and the Bumblebee are plain ELRS transmitters and work fine with an analog setup.
+
+| | RadioMaster Pocket 2 | Jumper Bumblebee |
+|---|---|---|
+| Firmware | EdgeTX (preinstalled) | EdgeTX (preinstalled) |
+| MCU / flash | STM32F407xE, 512KB — compiles out Advanced USB Joystick from 2.11 on (see above) | STM32F407VGT6, 1MB — likely keeps Advanced mode available |
+| Internal RF power | ELRS 2.4GHz, standard power; external Nano module bay for more | Built-in ELRS up to 1W (1000mW), no module needed |
+| Gimbals (stock) | Hall-effect (X5 Nano, quad ball-bearing) — reviewed on par with the Jumper T-Lite V2 | Hall-effect (RDC50) — Jumper's in-house unit, similar tier |
+| Gimbal upgrade path | **AG01 Nano**, $59.99/pair — CNC aluminum, reviewed as a real step up from stock | No equivalent upgrade part found |
+| Screen | 128×64 monochrome LCD | 1.3" OLED, 128×64 |
+| Weight | 288g | not confirmed |
+| Price | ~$60–72 | ~$72–129 (varies by retailer/region) |
+
+**Verdict:** for someone starting fresh, the Bumblebee is arguably the stronger general pick — more stock RF power and more firmware headroom for the same rough price, at the cost of RadioMaster's larger community and module-bay expandability. For this build specifically, the Pocket 2 stays: the Classic-mode CH9 workaround is already documented and nearly working, and switching radios now would mean re-debugging already-solved setup for a gimbal/screen upgrade and a joystick feature a workaround already covers. Not independently verified: whether the Bumblebee's 1MB flash actually keeps Advanced USB Joystick mode on current EdgeTX — that's inferred from flash size, not source-checked the way the Pocket's limitation was.
+
 ## Firmware
 
 ### Factory build
